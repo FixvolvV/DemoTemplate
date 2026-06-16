@@ -36,3 +36,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# TODO: После создания роутов подключить их тут
