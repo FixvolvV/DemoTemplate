@@ -1,0 +1,52 @@
+from pathlib import Path
+from pydantic import BaseModel, PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
+TOKEN_TYPE_FIELD = "type"
+ACCESS_TOKEN_TYPE = "access"
+REFRESH_TOKEN_TYPE = "refresh"
+
+
+class RunConfig(BaseModel):
+    mode: str = "development"
+
+
+class DatabaseConfig(BaseModel):
+    url: PostgresDsn
+    echo: bool = False
+    echo_pool: bool = False
+    pool_size: int = 50
+    max_overflow: int = 10
+
+
+class Httpcors(BaseModel):
+    urls: list = []
+
+
+class JWTConfig(BaseModel):
+    public: Path
+    private: Path
+    algorithm: str = "RS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 5
+
+
+class Settings(BaseSettings):
+    run: RunConfig = RunConfig()
+    db: DatabaseConfig
+    httpcors: Httpcors = Httpcors()
+    jwt: JWTConfig
+
+    model_config = SettingsConfigDict(
+        env_file=(BASE_DIR / ".env.template", BASE_DIR / ".env"),
+        env_nested_delimiter="-",
+        env_prefix="API-",
+        case_sensitive=False,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+
+settings = Settings()  # pyright: ignore
